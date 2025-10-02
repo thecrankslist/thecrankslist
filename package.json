@@ -6,17 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "next": "15.5.0"
   },
-"devDependencies": {
-  "tailwindcss": "^3.4.1",
-  "postcss": "^8",
-  "autoprefixer": "^10.0.1",
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8",
+    "autoprefixer": "^10.0.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
     "@eslint/eslintrc": "^3"
