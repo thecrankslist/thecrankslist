@@ -92,12 +92,9 @@ export default function Home() {
       <div className="bg-white border-b border-gray-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center max-w-4xl mx-auto">
-            <h2 className="text-6xl font-light text-black mb-6 tracking-tight" style={{fontFamily: 'system-ui, -apple-system, sans-serif'}}>
+            <h2 className="text-5xl font-light text-black mb-16 tracking-tight" style={{fontFamily: 'system-ui, -apple-system, sans-serif'}}>
               your local bike marketplace
             </h2>
-            <p className="text-2xl text-gray-600 font-light mb-16 leading-relaxed">
-              find your perfect ride or sell your bike to riders in your area
-            </p>
 
             {/* Search Form */}
             <form onSubmit={handleSearch} className="bg-white border-2 border-gray-300 rounded-2xl p-8 shadow-sm">
