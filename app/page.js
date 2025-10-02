@@ -90,31 +90,31 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-5xl font-light text-black mb-6" style={{fontFamily: 'system-ui, -apple-system, sans-serif'}}>
-              buy and sell bikes locally
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="text-center max-w-4xl mx-auto">
+            <h2 className="text-6xl font-light text-black mb-6 tracking-tight" style={{fontFamily: 'system-ui, -apple-system, sans-serif'}}>
+              your local bike marketplace
             </h2>
-            <p className="text-xl text-gray-600 font-light mb-12">
+            <p className="text-2xl text-gray-600 font-light mb-16 leading-relaxed">
               find your perfect ride or sell your bike to riders in your area
             </p>
 
             {/* Search Form */}
-            <form onSubmit={handleSearch} className="bg-gray-50 border-2 border-gray-300 rounded-2xl p-8">
+            <form onSubmit={handleSearch} className="bg-white border-2 border-gray-300 rounded-2xl p-8 shadow-sm">
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <input
                   type="text"
                   placeholder="search bikes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black bg-white text-black placeholder-gray-600"
+                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-black bg-gray-50 text-black placeholder-gray-500 font-light text-lg transition-all"
                 />
                 <input
                   type="text"
                   placeholder="location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black bg-white text-black placeholder-gray-600"
+                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-black bg-gray-50 text-black placeholder-gray-500 font-light text-lg transition-all"
                 />
               </div>
               
@@ -122,7 +122,7 @@ export default function Home() {
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black bg-white text-black"
+                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-black bg-gray-50 text-black font-light text-lg transition-all"
                 >
                   <option value="">all bike types</option>
                   {bikeTypes.map(type => (
@@ -133,7 +133,7 @@ export default function Home() {
                 <select
                   value={selectedPrice}
                   onChange={(e) => setSelectedPrice(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black bg-white text-black"
+                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-black bg-gray-50 text-black font-light text-lg transition-all"
                 >
                   <option value="">any price</option>
                   {priceRanges.map(range => (
@@ -144,7 +144,7 @@ export default function Home() {
 
               <button
                 type="submit"
-                className="w-full bg-black text-white px-8 py-4 rounded-full hover:bg-gray-800 transition-colors font-light text-lg"
+                className="w-full bg-black text-white px-8 py-5 rounded-full hover:bg-gray-800 transition-all font-light text-xl shadow-lg hover:shadow-xl"
               >
                 search bikes
               </button>
@@ -153,34 +153,59 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Quick Browse Categories */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h3 className="text-2xl font-light text-black mb-8 text-center">browse by type</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* Browse by Category - Redesigned */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-12">
+          <h3 className="text-4xl font-light text-black mb-3">browse by category</h3>
+          <p className="text-gray-600 font-light text-lg">explore bikes by type</p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-w-5xl mx-auto">
           {bikeTypes.map(type => (
             <Link
               key={type.id}
               href={`/browse?type=${type.name}`}
-              className="bg-white border-2 border-gray-300 rounded-xl p-6 text-center hover:border-black hover:shadow-lg transition-all group"
+              className="group bg-white border-2 border-gray-300 rounded-xl p-4 text-center hover:border-black hover:shadow-lg transition-all duration-300"
             >
-              <div className="text-4xl mb-3">🚴‍♂️</div>
-              <div className="font-light text-black group-hover:text-gray-800">{type.name}</div>
+              <div className="font-light text-base text-black group-hover:text-gray-800 transition-colors">
+                {type.name}
+              </div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="bg-white border-t border-gray-300">
+      {/* Stats Section */}
+      <div className="bg-white border-y border-gray-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <div>
+              <div className="text-5xl font-light text-black mb-2">local</div>
+              <div className="text-gray-600 font-light">buy and sell in your area</div>
+            </div>
+            <div>
+              <div className="text-5xl font-light text-black mb-2">simple</div>
+              <div className="text-gray-600 font-light">list your bike in minutes</div>
+            </div>
+            <div>
+              <div className="text-5xl font-light text-black mb-2">trusted</div>
+              <div className="text-gray-600 font-light">connect with real riders</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
-            <h3 className="text-3xl font-light text-black mb-4">ready to sell?</h3>
-            <p className="text-gray-600 font-light mb-8">
-              list your bike in minutes and reach local buyers
+            <h3 className="text-4xl font-light text-black mb-4">ready to sell?</h3>
+            <p className="text-xl text-gray-600 font-light mb-10 max-w-2xl mx-auto">
+              list your bike in minutes and reach local buyers looking for their next ride
             </p>
             <Link
               href="/sell"
-              className="inline-block bg-black text-white px-8 py-4 rounded-full hover:bg-gray-800 transition-colors font-light text-lg"
+              className="inline-block bg-black text-white px-10 py-5 rounded-full hover:bg-gray-800 transition-all font-light text-xl shadow-lg hover:shadow-xl"
             >
               create a listing
             </Link>
