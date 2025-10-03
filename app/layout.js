@@ -21,7 +21,7 @@ export const metadata = {
     siteName: "crankslist",
     images: [
       {
-        url: "https://crankslist.com/og-image.jpg",
+        url: "https://crankslist.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "crankslist - Local Bike Marketplace",
@@ -34,7 +34,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "crankslist - Your Local Bike Marketplace",
     description: "Buy and sell bikes locally. Find road bikes, mountain bikes, gravel bikes, and more in your area.",
-    images: ["https://crankslist.com/og-image.jpg"],
+    images: ["https://crankslist.com/og-image.png"],
   },
 };
 
