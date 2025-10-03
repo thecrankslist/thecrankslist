@@ -308,10 +308,10 @@ export default function SellPage() {
           <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-12">
             <h2 className="text-4xl font-light text-black mb-4">account pending approval</h2>
             <p className="text-gray-700 mb-6 text-lg leading-relaxed">
-              your account is currently being reviewed by our team. you'll be able to create listings once your account is approved.
+              your account is currently being reviewed by our team. you&apos;ll be able to create listings once your account is approved.
             </p>
             <p className="text-gray-600 text-sm">
-              this usually takes 24-48 hours. we'll notify you via email once approved.
+              this usually takes 24-48 hours. we&apos;ll notify you via email once approved.
             </p>
             <div className="mt-8">
               <Link

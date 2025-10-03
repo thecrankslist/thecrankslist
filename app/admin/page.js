@@ -124,7 +124,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-light text-black mb-4">access denied</h1>
-          <p className="text-gray-600 mb-6">you don't have admin privileges</p>
+          <p className="text-gray-600 mb-6">you don&apos;t have admin privileges</p>
           <Link href="/" className="text-black underline">return home</Link>
         </div>
       </div>
