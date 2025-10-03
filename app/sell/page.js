@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 
 export default function SellPage() {
   const [user, setUser] = useState(null)
+  const [approvalStatus, setApprovalStatus] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [bikeTypes, setBikeTypes] = useState([])
   const [loading, setLoading] = useState(false)
@@ -24,34 +25,59 @@ export default function SellPage() {
     longitude: null,
     brand: '',
     size: '',
-    year: ''
+    year: '',
+    currency: 'USD'
   })
 
   useEffect(() => {
-    checkAuth()
+    checkUserApproval()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
-        setAuthLoading(false)
+        if (session?.user) {
+          checkApproval(session.user.id)
+        }
       }
     )
     return () => subscription?.unsubscribe()
   }, [])
 
   useEffect(() => {
-    if (user) {
+    if (user && approvalStatus === 'approved') {
       fetchBikeTypes()
     }
-  }, [user])
+  }, [user, approvalStatus])
 
-  const checkAuth = async () => {
+  const checkUserApproval = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user || null)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        setAuthLoading(false)
+        return
+      }
+
+      setUser(user)
+      await checkApproval(user.id)
     } catch (error) {
-      console.error('Error checking auth:', error)
+      console.error('Error checking approval:', error)
     } finally {
       setAuthLoading(false)
+    }
+  }
+
+  const checkApproval = async (userId) => {
+    try {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('approval_status')
+        .eq('user_id', userId)
+        .single()
+
+      setApprovalStatus(profile?.approval_status || 'pending')
+    } catch (error) {
+      console.error('Error checking approval:', error)
+      setApprovalStatus('pending')
     }
   }
 
@@ -77,8 +103,6 @@ export default function SellPage() {
     }
 
     setSelectedImages(files)
-
-    // Create preview URLs
     const previews = files.map(file => URL.createObjectURL(file))
     setImagePreview(previews)
   }
@@ -108,7 +132,6 @@ export default function SellPage() {
 
         if (error) throw error
 
-        // Get the public URL
         const { data: { publicUrl } } = supabase.storage
           .from('bike-images')
           .getPublicUrl(fileName)
@@ -175,7 +198,6 @@ export default function SellPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      // Upload images first
       const imageUrls = await uploadImages()
 
       const { data, error } = await supabase
@@ -194,9 +216,10 @@ export default function SellPage() {
           year: formData.year ? parseInt(formData.year) : null,
           user_id: user.id,
           seller_email: user.email,
-          images: imageUrls // Add the image URLs array
+          images: imageUrls
         }])
         .select()
+
       if (error) throw error
 
       setSuccess(true)
@@ -211,7 +234,8 @@ export default function SellPage() {
         longitude: null,
         brand: '',
         size: '',
-        year: ''
+        year: '',
+        currency: 'USD'
       })
       setSelectedImages([])
       setImagePreview([])
@@ -223,14 +247,11 @@ export default function SellPage() {
     }
   }
 
-  // [Keep all the existing loading/auth/success states - they're the same]
-
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading...</p>
+          <div className="text-xl font-light text-black">loading...</div>
         </div>
       </div>
     )
@@ -255,11 +276,91 @@ export default function SellPage() {
 
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="bg-white border-2 border-gray-300 rounded-2xl p-12">
-            <div className="text-6xl mb-6">🔐</div>
             <h2 className="text-3xl font-light text-black mb-4">sign in required</h2>
             <p className="text-gray-500 mb-8 font-light">you need to be signed in to create a listing</p>
             <Link href="/auth/signin" className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 font-light inline-block">
               sign in to continue
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (approvalStatus === 'pending') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b border-gray-300">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <Link href="/" className="flex items-center">
+                <h1 className="text-3xl font-light text-black">crankslist</h1>
+              </Link>
+              <nav className="flex items-center space-x-8">
+                <Link href="/browse" className="text-gray-600 hover:text-black">browse</Link>
+                <Link href="/account" className="text-gray-600 hover:text-black">my account</Link>
+              </nav>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-12">
+            <h2 className="text-4xl font-light text-black mb-4">account pending approval</h2>
+            <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+              your account is currently being reviewed by our team. you'll be able to create listings once your account is approved.
+            </p>
+            <p className="text-gray-600 text-sm">
+              this usually takes 24-48 hours. we'll notify you via email once approved.
+            </p>
+            <div className="mt-8">
+              <Link
+                href="/browse"
+                className="inline-block text-black underline hover:no-underline"
+              >
+                browse bikes while you wait
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (approvalStatus === 'rejected') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b border-gray-300">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <Link href="/" className="flex items-center">
+                <h1 className="text-3xl font-light text-black">crankslist</h1>
+              </Link>
+              <nav className="flex items-center space-x-8">
+                <Link href="/browse" className="text-gray-600 hover:text-black">browse</Link>
+                <Link href="/account" className="text-gray-600 hover:text-black">my account</Link>
+              </nav>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-12">
+            <h2 className="text-4xl font-light text-black mb-4">account not approved</h2>
+            <p className="text-gray-700 mb-6 text-lg">
+              unfortunately, your account was not approved for posting listings.
+            </p>
+            <p className="text-gray-600 text-sm mb-8">
+              if you believe this was a mistake, please contact us at{' '}
+              <a href="mailto:thecrankslist@gmail.com" className="text-black underline">
+                thecrankslist@gmail.com
+              </a>
+            </p>
+            <Link
+              href="/browse"
+              className="inline-block text-black underline hover:no-underline"
+            >
+              browse bikes
             </Link>
           </div>
         </div>
@@ -286,7 +387,6 @@ export default function SellPage() {
 
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="bg-white border-2 border-gray-300 rounded-2xl p-12">
-            <div className="text-6xl mb-6">✅</div>
             <h2 className="text-3xl font-light text-black mb-4">listing created!</h2>
             <p className="text-gray-500 mb-8 font-light">your bike is now live on crankslist</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -326,8 +426,6 @@ export default function SellPage() {
 
         <div className="bg-white border-2 border-gray-300 rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* [All your existing form fields stay the same until the image section] */}
-            
             <div>
               <label className="block text-sm font-light text-black mb-2">listing title *</label>
               <input
@@ -353,7 +451,6 @@ export default function SellPage() {
               />
             </div>
 
-            {/* [All the grid fields stay exactly the same] */}
             <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
@@ -372,7 +469,7 @@ export default function SellPage() {
                   <label className="block text-sm font-light text-black mb-2 invisible">currency</label>
                   <select
                     name="currency"
-                    value={formData.currency || "USD"}
+                    value={formData.currency}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-black focus:outline-none focus:border-black"
                   >
@@ -392,7 +489,7 @@ export default function SellPage() {
                     required
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-black focus:outline-none focus:border-black"
                   >
-                    <option value="" className="text-gray-600">Select type</option>
+                    <option value="">select type</option>
                     {bikeTypes.map(type => (
                       <option key={type.id} value={type.name}>{type.name}</option>
                     ))}
@@ -473,7 +570,7 @@ export default function SellPage() {
                       disabled={locationLoading}
                       className="px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-black hover:bg-gray-100 text-sm font-light disabled:opacity-50 transition-colors"
                     >
-                      {locationLoading ? '📍...' : '📍'}
+                      {locationLoading ? '...' : '📍'}
                     </button>
                   </div>
                   {formData.latitude && formData.longitude && (
@@ -485,7 +582,6 @@ export default function SellPage() {
               </div>
             </div>
 
-            {/* Updated Images Section */}
             <div>
               <label className="block text-sm font-light text-black mb-2">bike photos</label>
               <input
@@ -497,7 +593,6 @@ export default function SellPage() {
               />
               <p className="text-xs text-gray-500 mt-1">Upload up to 5 photos (JPG, PNG, etc.)</p>
               
-              {/* Image Previews */}
               {imagePreview.length > 0 && (
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
                   {imagePreview.map((preview, index) => (
