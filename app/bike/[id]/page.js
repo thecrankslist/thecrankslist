@@ -13,6 +13,7 @@ export default function BikeDetailPage() {
   const [showContactForm, setShowContactForm] = useState(false)
   const [error, setError] = useState(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [currentUser, setCurrentUser] = useState(null)
   const [contactFormData, setContactFormData] = useState({
     name: '',
     email: '',
@@ -21,10 +22,20 @@ export default function BikeDetailPage() {
   const [sendingMessage, setSendingMessage] = useState(false)
 
   useEffect(() => {
+    checkUser()
     if (params?.id) {
       fetchBike(params.id)
     }
   }, [params?.id])
+
+  const checkUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      setCurrentUser(user)
+    } catch (error) {
+      console.error('Error checking user:', error)
+    }
+  }
 
   const fetchBike = async (id) => {
     try {
@@ -87,30 +98,24 @@ export default function BikeDetailPage() {
     setSendingMessage(true)
     
     try {
-      // Here you would typically send the message through your backend
-      // This could be an API route that emails the seller without revealing their email
-      const response = await fetch('/api/contact-seller', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bikeId: bike.id,
-          bikeTitle: bike.title,
-          buyerName: contactFormData.name,
-          buyerEmail: contactFormData.email,
+      // Insert message directly into Supabase messages table
+      const { error } = await supabase
+        .from('messages')
+        .insert([{
+          bike_id: bike.id,
+          sender_name: contactFormData.name,
+          sender_email: contactFormData.email,
+          recipient_email: bike.seller_email,
+          subject: `Inquiry about: ${bike.title}`,
           message: contactFormData.message,
-          sellerEmail: bike.seller_email // This stays on your server
-        })
-      })
+          is_read: false
+        }])
 
-      if (response.ok) {
-        alert('Message sent successfully!')
-        setContactFormData({ name: '', email: '', message: '' })
-        setShowContactForm(false)
-      } else {
-        alert('Error sending message. Please try again.')
-      }
+      if (error) throw error
+
+      alert('Message sent successfully! The seller will receive your message.')
+      setContactFormData({ name: '', email: '', message: '' })
+      setShowContactForm(false)
     } catch (error) {
       console.error('Error sending message:', error)
       alert('Error sending message. Please try again.')
